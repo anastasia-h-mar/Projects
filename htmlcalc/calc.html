@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html>
+	<header>
+		<meta charset="utf-8">
+
+		<title>Javascript RPN Integer Calculator</title>
+		<style>
+			.output {
+				background-color:blanchedalmond;
+				border: medium solid;
+				border-color:black;
+				box-shadow: 2px 3px hotpink;
+				border-radius: 1px;
+				height: 4em;
+				min-width: 14em;
+				clear: both;
+				float: left;
+			}
+
+			.number {
+				background-color:tan;
+				border: medium solid;
+				border-color:black;
+				border-width:1px;
+
+				border-radius:1px;
+				height: 4em;
+				min-width:4em;
+			}
+
+			.operator {
+				background-color:lightblue;
+				border: medium solid;
+				border-color:black;
+				border-width:1px;
+				border-radius:1px;
+				height: 4em;
+				min-width:4em;
+				display: block;
+			}
+
+			div.numbers {
+				float: left;
+				border: medium solid;
+				border-color: black;
+				border-width:1px;
+			}
+
+			div.operators {
+				background: red;
+				display: inline-block;
+				float: left;
+			}
+
+
+			.clearenter {
+				float:left;
+				clear: both;
+				background-color:lightblue;
+				border: medium solid;
+				border-color:black;
+				border-width:1px;
+			}
+
+			.command {
+				background-color:lightblue;
+				border: medium solid;
+				border-color:black;
+				border-width:1px;
+				border-radius:1px;
+				height: 4em;
+				min-width:4em;
+			}
+
+		</style>
+
+	</header>
+
+	<body>
+
+		<div class = "calculator">
+
+			<form>
+				<div class = "numbers">
+			
+
+					<div>
+						<button type="button" class = "number" id="seven" value = "7">7</button>
+						<button type="button" class = "number" id="eight" value = "8">8</button>
+						<button type="button" class = "number" id="nine" value = "9">9</button>
+					</div>
+
+					<div>
+						<button type="button" class = "number" id="four" value = "4">4</button>
+						<button type="button" class = "number" id="five" value = "5">5</button>
+						<button type="button" class = "number" id="six" value = "6">6</button>
+					</div>
+
+					<div>
+
+						<button type="button" class = "number" id="one" value = "1">1</button>
+						<button type="button" class = "number" id="two" value = "2">2</button>
+						<button type="button" class = "number" id="three" value = "3" >3</button>
+
+					</div>
+
+					<div>
+						<button type="button" class = "number" id="zero" value = "0">0</button>
+						
+					</div>
+
+				</div>
+
+				
+
+				
+
+				<div class = "operators">
+					<div class = "row operators">
+						<button type = "button" class = "operator" value = "+">+</button>
+						<button type = "button" class = "operator" value = "-">-</button>
+						<button type = "button" class = "operator" value = "x">x</button>
+						<button type = "button" class = "operator" value = "/">/</button>	
+						<button type = "button" class = "operator" value = "+-">+/-</button>
+										
+					</div>
+				</div>
+
+				<div class = "clearenter">
+					<button type = "button" class = "command" value = "C">C</button>
+					<button type = "button" class = "command" value = "E">Enter</button>
+				</div>
+
+				
+			</form>
+
+		</div>
+
+		<div class = "output" id="output">
+			
+		</div>
+
+	</body>
+
+	<!-- Load the jQuery Library -->
+	<script src="https://code.jquery.com/jquery-3.7.0.min.js">
+	</script>
+
+	<script>
+		/* Stack is the main array here.  I use push() and pop() to access the values I want to use
+		Buffer is used to store the value being put in but not being entered */
+
+		// TODO: create a body for the calculator
+
+		var stack = []; //Main stack for calculator
+		var buffer = "";
+
+		function addBuff() {
+			/* When a user presses an operator before they have entered a second number but there is a number within the buffer, the code will work as it is supposed to */
+			if (buffer == "") {
+				return;
+			}
+			var nNum = parseInt(buffer);
+			stack.push(nNum);
+			console.log(`${buffer} was added to stack`);
+			buffer = "";
+			$("#output").text(stack.join(" "));
+		}
+
+		//check for number
+
+		function numberIsClicked(e) {
+			// When a number button is clicked, add it to the buffer, and redraw the output div;
+			var nText = $(e.target).val();
+			buffer = buffer + nText;
+
+			console.log(`buffer is ${buffer}`);
+
+			var t = $("#output").text();
+			updateOutput(buffer);
+			return;
+		}
+
+
+		//check for operator
+		function operatorIsClicked(e) {
+			//When an operator button is clicked, it runs this function
+			//Operators:
+
+			/*
+			E = Enter (lets user submit multi-digit numbers)
+			C = Clear - clears everything including console log
+			+ = Addition - adds last two values put in together
+			- = Subtraction - subtracts last number from second to last number
+			x = Multiplication - multiply last two values
+			/ = Division - Divides second to last number by last number
+			*/
+
+			var opText = $(e.target).val();
+			console.log(opText);
+			if (opText == "C") {
+				stack = [];
+				buffer = "";
+				$("#output").text(" ");
+				console.clear();
+				return;
+			}
+
+			//enter
+			if (opText == "E") {
+				//Pushes the value typed in into the stack
+				addBuff();
+				return;
+			}
+
+			addBuff(); //When the user enters a number and does not hit enter but hits operater instead (jic)//
+
+
+
+			//addition
+			if (opText == "+") {
+				//adds last two numbers together
+				if (stack.length < 2) {
+					alert("Not enough numbers on the stack!");
+					return;
+				}
+				var n1 = stack.pop();
+				var n2 = stack.pop();
+				var answer = n1 + n2;
+				stack.push(answer);
+				updateOutput();
+				console.log(`${n1}+${n2}=${answer}`);
+				return;
+			}
+
+
+			//substraction
+			if (opText == "-") {
+				//subtracts last two
+				if (stack.length < 2) {
+					alert("Not enough numbers on the stack!");
+					return;
+				}
+				var n1 = stack.pop();
+				var n2 = stack.pop();
+				var answer = Math.floor(n2- n1);
+				stack.push(answer);
+				updateOutput();
+				return;
+			}
+
+
+
+			//multiplication
+			if (opText == "x") {
+				//multiplies last two
+				if (stack.length < 2) {
+					alert("Not enough numbers on the stack!");
+					return;
+				}
+				var n1 = stack.pop();
+				var n2 = stack.pop();
+				var answer = n1 * n2;
+				stack.push(answer);
+				updateOutput();
+				return;
+			}
+
+
+			//division
+			if (opText == "/") {
+				//divides last two
+				if (stack.length < 2) {
+					alert("Not enough numbers on the stack!");
+					return;
+				}
+				var n1 = stack.pop();
+				var n2 = stack.pop();
+
+				if (n1 == 0) {
+					alert("Cannot divide by 0");
+					return;
+				}
+
+				var answer = Math.floor(n2 / n1);
+				stack.push(answer);
+				updateOutput();
+				return;
+			}
+
+			if (opText == "+-") {
+				//flips value of last entered value
+				if (stack.length < 1) {
+					return;
+				}
+
+				var n1 = stack.pop();
+				stack.push(n1 * -1);
+				console.log(`change sign from ${n1} to ${n1 * -1}`);
+				updateOutput();
+				return;
+
+			}
+
+			
+
+		}
+
+		function updateOutput(extraText) {
+			//Update the #output div with extra text
+			var text = stack.join(" ");
+			if (extraText) {
+				text += " " + extraText;
+			}
+			$("#output").text(text);
+		}
+
+		function docIsReady() {
+			// Function to add event listeners to GUI buttons and controls
+			$(".number").click(numberIsClicked);
+			$(".operator").click(operatorIsClicked);
+			$(".command").click(operatorIsClicked);
+		} ;
+		$(document).ready(docIsReady) ;
+		// ^^^ jQuery method that lets us know the browser is ready for us to modify the document object model (DOM )
+
+	</script>
+
+
+</html>
